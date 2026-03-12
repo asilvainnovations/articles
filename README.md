@@ -143,7 +143,7 @@ asilva-blog/
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/asilvainnovations/blog.git
+git clone [(https://github.com/asilvainnovations/articles.git)
 cd blog
 
 # 2. Install dependencies
