@@ -1,0 +1,121 @@
+# ============================================================
+# ASilva Innovations Blog — Netlify Configuration
+# ============================================================
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+  functions = "netlify/functions"
+
+[build.environment]
+  NODE_VERSION = "20"
+  NPM_VERSION = "10"
+
+# ── Development context ───────────────────────────────────────
+[context.development]
+  command = "npm run dev"
+
+[context.development.environment]
+  NODE_ENV = "development"
+  VITE_APP_ENV = "development"
+
+# ── Staging (branch deploys) ──────────────────────────────────
+[context.branch-deploy]
+  command = "npm run build"
+
+[context.branch-deploy.environment]
+  NODE_ENV = "production"
+  VITE_APP_ENV = "staging"
+
+# ── Production ────────────────────────────────────────────────
+[context.production]
+  command = "npm run build"
+
+[context.production.environment]
+  NODE_ENV = "production"
+  VITE_APP_ENV = "production"
+
+# ── SPA Redirect (React Router) ──────────────────────────────
+# All routes fall back to index.html for client-side routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# ── API redirects to Netlify Functions ───────────────────────
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+# ── Legacy URL redirects ──────────────────────────────────────
+[[redirects]]
+  from = "/blog/post/:slug"
+  to = "/blog/:slug"
+  status = 301
+
+[[redirects]]
+  from = "/articles/:slug"
+  to = "/blog/:slug"
+  status = 301
+
+# ── Security Headers ─────────────────────────────────────────
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https://api.anthropic.com https://www.google-analytics.com; frame-src 'none';"
+
+# ── Asset caching ─────────────────────────────────────────────
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# ── Image optimization headers ────────────────────────────────
+[[headers]]
+  for = "*.jpg"
+  [headers.values]
+    Cache-Control = "public, max-age=2592000"
+    Vary = "Accept"
+
+[[headers]]
+  for = "*.png"
+  [headers.values]
+    Cache-Control = "public, max-age=2592000"
+
+[[headers]]
+  for = "*.webp"
+  [headers.values]
+    Cache-Control = "public, max-age=2592000"
+
+# ── Netlify Edge Functions ────────────────────────────────────
+[[edge_functions]]
+  path = "/api/newsletter"
+  function = "newsletter-subscribe"
+
+[[edge_functions]]
+  path = "/api/search"
+  function = "search"
+
+# ── Form handling (Netlify Forms fallback) ────────────────────
+# Newsletter form is handled via JS but Netlify Forms is backup
